@@ -4,7 +4,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var session = require('express-session');
 var FileStore = require('session-file-store')(session);
-var indexRouter = require('./routes/index');
+var indexRouter = require('./routes/indexRouter');
 var usersRouter = require('./routes/users');
 var passport = require('passport');
 var authenticate = require('./authenticate');
@@ -16,9 +16,8 @@ const mongoose = require('mongoose');
 
 const Dishes = require('./models/dishes');
 
-const url = 'mongodb://localhost:27017/confusion';
-const connect = mongoose.connect(url);
 const url = config.mongoUrl;
+const connect = mongoose.connect(url);
 
 
 connect.then((db) => {
@@ -34,18 +33,6 @@ app.use(passport.initialize());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-
-var auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
-var user = auth[0];
-var pass = auth[1];
-  if (user == 'admin' && pass == 'password') {
-      next(); // authorized
-  } else {
-      var err = new Error('You are not authenticated!');
-      res.setHeader('WWW-Authenticate', 'Basic');      
-      err.status = 401;
-      next(err);
-  }
 
 app.use(logger('dev'));
 app.use(express.json());
